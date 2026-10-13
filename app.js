@@ -535,23 +535,33 @@
 
   /* ------------------------------------------------------------ data loading */
   let lastSig = '';
+  const parseRows = text => parseCSV(text).map(cleanPlace).filter(p => p.name);
   async function loadData() {
     await loadManifest();
     let rows = null, msg = '';
     if (CSV_URL) {
       try {
         const res = await fetch(CSV_URL, { cache: 'no-store' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
+        if (!res.ok) throw new Error('the link answered HTTP ' + res.status);
         const text = await res.text();
-        if (!text.trim() || !text.includes(',') || /^\s*<(!doctype|html)/i.test(text)) throw new Error('Not CSV');
-        rows = parseCSV(text).map(cleanPlace).filter(p => p.name);
-        if (!rows.length) throw new Error('No place rows found');
+        if (/^\s*<(!doctype|html)/i.test(text)) throw new Error('the link returned a web page, not CSV — it must end in output=csv and the tab must be published to everyone');
+        if (!text.trim() || !text.includes(',')) throw new Error('the link returned an empty file');
+        rows = parseRows(text);
+        if (!rows.length) throw new Error('the sheet loaded but has no rows under a "place / name" column — check the header row and any #REF! errors');
       } catch (err) {
         console.warn('Live sheet unavailable:', err);
-        msg = 'Could not reach the live sheet — showing the bundled data. Check the published CSV link in config.js.';
+        rows = null;
+        msg = 'Could not reach the live sheet (' + (err.message || err) + '). Showing the backup copy instead.';
       }
     }
-    if (!rows) rows = (window.THIRD_SPACES_FALLBACK || []).map(cleanPlace).filter(p => p.name);
+    if (!rows) {                                   // backup 1: the spreadsheet file uploaded next to index.html
+      try {
+        const res = await fetch('third-space-index.csv', { cache: 'no-store' });
+        if (res.ok) { const r = parseRows(await res.text()); if (r.length) rows = r; }
+      } catch (e) { /* not there */ }
+    }
+    if (!rows) rows = (window.THIRD_SPACES_FALLBACK || []).map(cleanPlace).filter(p => p.name);   // backup 2: data.js
+    if (!rows.length && msg) msg += ' The backup copies (third-space-index.csv and data.js) are also missing from the site.';
     $('#statusMessage').textContent = msg;
 
     const sig = JSON.stringify(rows.map(p => [p.id, p.name, p.address, p.tags, p.category, p.description, p.image, p.borough, p.images]));
