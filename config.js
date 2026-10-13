@@ -3,7 +3,7 @@
    ===================================================================== */
 
 /* 1) LIVE GOOGLE SHEET  — published CSV link (File → Share → Publish to web → CSV) */
-window.THIRD_SPACES_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSYQas2pZX83pMCFlJyn7IjCTZCgHl5KtyEDvID1ljJo1TwwEmbmiKBVwEh0kySYTuy8rwiu1u_02ue/pub?output=csv";
+window.THIRD_SPACES_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSYQas2pZX83pMCFlJyn7IjCTZCgHl5KtyEDvID1ljJo1TwwEmbmiKBVwEh0kySYTuy8rwiu1u_02ue/pub?gid=406749214&single=true&output=csv";
 window.THIRD_SPACES_REFRESH_MS = 300000;   // re-check the sheet every 5 min (0 = never)
 
 /* 2) IMAGES — folder next to index.html. The sheet's [image] column should hold
