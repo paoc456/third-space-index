@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A field guide to third spaces across New York City.">
+  <title>Third Spaces — A Field Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- fallback fonts; delete these three lines once ABC ROM + Exposure files are in /fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-view="index">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar" id="sidebar">
+    <nav class="top-nav" aria-label="Main navigation">
+      <a href="#index"  class="nav-button" data-view-link="index">Index</a>
+      <a href="#submit" class="nav-button" data-view-link="submit">Submit</a>
+      <a href="#about"  class="nav-button" data-view-link="about">About</a>
+      <button class="nav-button collapse-button" id="sidebarCollapse" type="button" aria-controls="sidebar" aria-label="Collapse sidebar" title="Collapse sidebar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+      </button>
+    </nav>
+
+    <!-- INDEX: intro line + filters -->
+    <section class="panel" data-panel="index">
+      <p class="lede">The index of Third Spaces near you.<br>Select the filters that apply for what you’re looking for.</p>
+
+      <button class="mobile-filter-toggle" id="mobileFilterToggle" aria-expanded="false" aria-controls="filters">Filters +</button>
+
+      <section class="filters" id="filters" aria-label="Index filters">
+        <div class="filter-heading">
+          <span>FILTERS</span>
+          <button id="clearFilters" class="text-button" hidden>Clear</button>
+        </div>
+        <div class="filter-group">
+          <h2>Oldenburg Traits</h2>
+          <div class="filter-options" id="traitFilters"></div>
+        </div>
+        <div class="filter-group">
+          <h2>Category</h2>
+          <div class="filter-options" id="categoryFilters"></div>
+        </div>
+        <div class="filter-group">
+          <h2>Location</h2>
+          <div class="filter-options" id="locationFilters"></div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="panel" data-panel="about" hidden>
+      <h1 class="about-title fit-title"><span class="fit-line">Third Spaces</span><br><span class="fit-line">[A Field Guide]</span></h1>
+      <div class="about-copy">
+        <p>In 1989, sociologist Ray Oldenburg gave a name to everything else. He called it the "third place": somewhere apart from home and work where people gather freely, without an agenda, and belonging is built simply by showing up again and again.</p>
+        <p>This is a running index of third spaces across New York’s five boroughs: cafés and bookstores, gardens and plazas, libraries and listening bars, makerspaces and mutual aid fridges, artist-run galleries and neighborhood pools.</p>
+        <p>Each entry includes its address, a short description of what you can do there, and the Oldenburg qualities it embodies.</p>
+      </div>
+      <div class="how-to">
+        <h2>HOW TO USE</h2>
+        <p>Browse by borough to see what’s near where you live or work.</p>
+        <p>Select by quality to find places that are playful, quiet, free, or built for conversation.</p>
+        <p>Filter by the type of space.</p>
+      </div>
+    </section>
+
+    <!-- SUBMIT -->
+    <section class="panel" data-panel="submit" hidden>
+      <h1 class="about-title about-title--sm">Submit<br>a space</h1>
+      <p class="about-copy">Know a third space that belongs in the index? Tell us about it.</p>
+      <form class="submit-form" id="submitForm" novalidate>
+        <label>Place name<input name="name" required autocomplete="off"></label>
+        <label>Address<input name="address" required autocomplete="off"></label>
+        <label>Category<select name="category" id="submitCategory" required></select></label>
+        <fieldset>
+          <legend>Oldenburg traits</legend>
+          <div class="check-row" id="submitTraits"></div>
+        </fieldset>
+        <label>Description<textarea name="description" rows="5" required></textarea></label>
+        <label>Image link <small>(optional)</small><input name="images" inputmode="url" autocomplete="off"></label>
+        <label>Your email <small>(optional)</small><input name="email" type="email" autocomplete="email"></label>
+        <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button class="nav-button submit-button" type="submit">Send</button>
+        <p class="form-status" id="formStatus" role="status"></p>
+      </form>
+    </section>
+  </aside>
+
+  <!-- shown only while the sidebar is collapsed -->
+  <div class="collapsed-brand" id="collapsedBrand">
+    <button class="nav-button brand-toggle" id="sidebarExpand" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="Show sidebar" title="Show sidebar">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5h18M3 12h18M3 17.5h18" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+    </button>
+    <div class="brand-text">
+      <p class="brand-title">Third Space Index</p>
+      <p class="brand-caption">The index of Third Spaces near you.</p>
+    </div>
+  </div>
+
+  <!-- ================= GRID ================= -->
+  <main class="main" id="main">
+    <div id="statusMessage" class="status-message" role="status"></div>
+    <div id="placesGrid" class="places-grid" aria-live="polite"></div>
+    <div id="emptyState" class="empty-state" hidden>No places match those filters. Try clearing a filter.</div>
+  </main>
+
+  <!-- ================= DETAIL MODAL ================= -->
+  <div class="modal-backdrop" id="placeModal" hidden>
+    <article class="place-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" id="modalClose" aria-label="Close details">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 2l20 20M22 2L2 22" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+      </button>
+
+      <div class="modal-image-wrap" id="modalGallery" data-count="0">
+        <div class="image-placeholder" id="modalPlaceholder"></div>
+        <img id="modalImage" alt="" hidden>
+        <button class="gallery-arrow gallery-arrow--prev" id="galleryPrev" aria-label="Previous image">‹</button>
+        <button class="gallery-arrow gallery-arrow--next" id="galleryNext" aria-label="Next image">›</button>
+        <div class="gallery-dots" id="galleryDots"></div>
+      </div>
+
+      <div class="modal-copy">
+        <h2 id="modalTitle"></h2>
+        <div class="detail-block"><span class="label">CATEGORY</span><p id="modalCategory"></p></div>
+        <div class="detail-block"><span class="label">OLDENBURG TRAITS</span><p id="modalTags"></p></div>
+        <div class="detail-block"><span class="label">ABOUT THE SPACE</span><p id="modalDescription"></p></div>
+        <div class="detail-block"><span class="label">ADDRESS</span><p><a id="mapLink" target="_blank" rel="noreferrer"></a></p></div>
+      </div>
+    </article>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="images/manifest.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
