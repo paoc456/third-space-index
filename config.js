@@ -39,7 +39,7 @@ window.THIRD_SPACES_SUBMIT_ENDPOINT = "";
 /* 4b) EASIEST — GOOGLE FORM (no script deployment / no admin permission needed).
        Paste a Google Form "pre-filled link" here. See README → "Submit form without Apps Script".
        Takes priority over the endpoint above. */
-window.THIRD_SPACES_GOOGLE_FORM = "";
+window.THIRD_SPACES_GOOGLE_FORM = "https://docs.google.com/forms/d/e/1FAIpQLSe3S1XskfUWF4xpAEHaEu8jsHyYaVTssjZvh9ORVdohXOPfwg/viewform?usp=pp_url&entry.588886037=name&entry.1255091026=address&entry.1367515567=category&entry.1341884999=traits&entry.266073878=description&entry.448242897=images&entry.727839015=email";
 window.THIRD_SPACES_SUBMIT_EMAIL = "thirdspaces@example.com";
 
 /* 5) FILTERS
