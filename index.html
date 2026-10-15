@@ -1,34 +1,46 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="A field guide to third spaces across New York City.">
-  <title>Third Spaces — A Field Guide</title>
+  <title>Third Spaces — A Guide</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- fallback fonts; delete these three lines once ABC ROM + Exposure files are in /fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script src="config.js"></script>
+  <script>document.documentElement.dataset.theme = window.THIRD_SPACES_THEME || "color";</script>
 </head>
+
 <body data-view="index">
 
   <!-- ================= SIDEBAR ================= -->
   <aside class="sidebar" id="sidebar">
     <nav class="top-nav" aria-label="Main navigation">
-      <a href="#index"  class="nav-button" data-view-link="index">Index</a>
+      <a href="#index" class="nav-button" data-view-link="index">Index</a>
+      <a href="#words" class="nav-button" data-view-link="words">Words</a>
       <a href="#submit" class="nav-button" data-view-link="submit">Submit</a>
-      <a href="#about"  class="nav-button" data-view-link="about">About</a>
-      <button class="nav-button collapse-button" id="sidebarCollapse" type="button" aria-controls="sidebar" aria-label="Collapse sidebar" title="Collapse sidebar">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+      <a href="#about" class="nav-button" data-view-link="about">About</a>
+      <button class="nav-button collapse-button" id="sidebarCollapse" type="button" aria-controls="sidebar"
+        aria-label="Collapse sidebar" title="Collapse sidebar">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M15 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="1.5" />
+        </svg>
       </button>
     </nav>
 
     <!-- INDEX: intro line + filters -->
     <section class="panel" data-panel="index">
-      <p class="lede">The index of Third Spaces near you.<br>Select the filters that apply for what you’re looking for.</p>
+      <p class="lede">The index of Third Spaces near you.<br>Select the filters that apply for what you’re looking for.
+      </p>
 
-      <button class="mobile-filter-toggle" id="mobileFilterToggle" aria-expanded="false" aria-controls="filters">Filters +</button>
+      <button class="mobile-filter-toggle" id="mobileFilterToggle" aria-expanded="false" aria-controls="filters">Filters
+        +</button>
 
       <section class="filters" id="filters" aria-label="Index filters">
         <div class="filter-heading">
@@ -50,13 +62,29 @@
       </section>
     </section>
 
+    <!-- WORDS -->
+    <section class="panel" data-panel="words" hidden>
+      <h1 class="about-title about-title--sm">Words</h1>
+      <p class="about-copy">How do you define third spaces? Add to the community board by
+        choosing a question, and write your answer on a card.</p>
+      <div class="words-list" id="wordsList" role="radiogroup" aria-label="Survey questions"></div>
+      <button class="text-button words-all" id="wordsAll" type="button">Show every answer</button>
+      <button class="text-button words-all" id="wordsReset" type="button">Reset card layout</button>
+    </section>
+
     <!-- ABOUT -->
     <section class="panel" data-panel="about" hidden>
-      <h1 class="about-title fit-title"><span class="fit-line">Third Spaces</span><br><span class="fit-line">[A Field Guide]</span></h1>
+      <h1 class="about-title fit-title"><span class="fit-line">Third Spaces</span><br><span class="fit-line">[A
+          Guide]</span></h1>
       <div class="about-copy">
-        <p>In 1989, sociologist Ray Oldenburg gave a name to everything else. He called it the "third place": somewhere apart from home and work where people gather freely, without an agenda, and belonging is built simply by showing up again and again.</p>
-        <p>This is a running index of third spaces across New York’s five boroughs: cafés and bookstores, gardens and plazas, libraries and listening bars, makerspaces and mutual aid fridges, artist-run galleries and neighborhood pools.</p>
-        <p>Each entry includes its address, a short description of what you can do there, and the Oldenburg qualities it embodies.</p>
+        <p>In 1989, sociologist Ray Oldenburg gave a name to everything else. He called it the "third place": somewhere
+          apart from home and work where people gather freely, without an agenda, and belonging is built simply by
+          showing up again and again.</p>
+        <p>This is a running index of third spaces across New York’s five boroughs: cafés and bookstores, gardens and
+          plazas, libraries and listening bars, makerspaces and mutual aid fridges, artist-run galleries and
+          neighborhood pools.</p>
+        <p>Each entry includes its address, a short description of what you can do there, and the Oldenburg qualities it
+          embodies.</p>
       </div>
       <div class="how-to">
         <h2>HOW TO USE</h2>
@@ -90,8 +118,11 @@
 
   <!-- shown only while the sidebar is collapsed -->
   <div class="collapsed-brand" id="collapsedBrand">
-    <button class="nav-button brand-toggle" id="sidebarExpand" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="Show sidebar" title="Show sidebar">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5h18M3 12h18M3 17.5h18" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+    <button class="nav-button brand-toggle" id="sidebarExpand" type="button" aria-controls="sidebar"
+      aria-expanded="false" aria-label="Show sidebar" title="Show sidebar">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M3 6.5h18M3 12h18M3 17.5h18" fill="none" stroke="currentColor" stroke-width="1.5" />
+      </svg>
     </button>
     <div class="brand-text">
       <p class="brand-title">Third Space Index</p>
@@ -106,11 +137,31 @@
     <div id="emptyState" class="empty-state" hidden>No places match those filters. Try clearing a filter.</div>
   </main>
 
+  <!-- ================= WORDS PAGE ================= -->
+  <section class="words-main" id="wordsMain" aria-label="Words">
+    <a class="nav-button words-back" href="#index">← Back to index</a>
+    <div class="words-wrap">
+      <form class="note words-composer" id="wordsForm">
+        <p class="words-prompt" id="wordsPrompt"></p>
+        <textarea name="text" rows="6" required maxlength="600" placeholder="Write your answer…"
+          aria-label="Your answer"></textarea>
+        <div class="words-row"><input name="name" maxlength="40" placeholder="First name (optional)"
+            autocomplete="given-name" aria-label="Your first name"><button class="nav-button submit-button"
+            type="submit">Pin it →</button></div>
+        <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <p class="form-status" id="wordsStatus" role="status"></p>
+      </form>
+      <div class="words-pile" id="wordsPile" aria-live="polite"></div>
+    </div>
+  </section>
+
   <!-- ================= DETAIL MODAL ================= -->
   <div class="modal-backdrop" id="placeModal" hidden>
     <article class="place-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <button class="modal-close" id="modalClose" aria-label="Close details">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 2l20 20M22 2L2 22" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M2 2l20 20M22 2L2 22" fill="none" stroke="currentColor" stroke-width="1.5" />
+        </svg>
       </button>
 
       <div class="modal-image-wrap" id="modalGallery" data-count="0">
@@ -123,17 +174,26 @@
 
       <div class="modal-copy">
         <h2 id="modalTitle"></h2>
-        <div class="detail-block"><span class="label">CATEGORY</span><p id="modalCategory"></p></div>
-        <div class="detail-block"><span class="label">OLDENBURG TRAITS</span><p id="modalTags"></p></div>
-        <div class="detail-block"><span class="label">ABOUT THE SPACE</span><p id="modalDescription"></p></div>
-        <div class="detail-block"><span class="label">ADDRESS</span><p><a id="mapLink" target="_blank" rel="noreferrer"></a></p></div>
+        <div class="detail-block"><span class="label">CATEGORY</span>
+          <p id="modalCategory"></p>
+        </div>
+        <div class="detail-block"><span class="label">OLDENBURG TRAITS</span>
+          <p id="modalTags"></p>
+        </div>
+        <div class="detail-block"><span class="label">ABOUT THE SPACE</span>
+          <p id="modalDescription"></p>
+        </div>
+        <div class="detail-block"><span class="label">ADDRESS</span>
+          <p><a id="mapLink" target="_blank" rel="noreferrer"></a></p>
+        </div>
       </div>
     </article>
   </div>
 
   <script src="data.js"></script>
+  <script src="words.js"></script>
   <script src="images/manifest.js"></script>
-  <script src="config.js"></script>
   <script src="app.js"></script>
 </body>
+
 </html>

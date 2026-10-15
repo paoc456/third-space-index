@@ -8,21 +8,25 @@
   'use strict';
 
   /* ------------------------------------------------------------ settings */
-  const $  = (s, r = document) => r.querySelector(s);
+  const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
-  const CSV_URL    = (window.THIRD_SPACES_CSV_URL || '').trim();
+  const CSV_URL = (window.THIRD_SPACES_CSV_URL || '').trim();
   const REFRESH_MS = Number(window.THIRD_SPACES_REFRESH_MS) || 0;
-  const IMG_DIR    = (window.THIRD_SPACES_IMAGE_DIR || 'images').replace(/\/+$/, '');
+  // extra published tabs whose rows are ADDED to the index (e.g. an 'Approved' tab of reviewed form submissions)
+  const EXTRA_URLS = [].concat(window.THIRD_SPACES_EXTRA_CSV_URLS || []).map(s => String(s).trim()).filter(Boolean);
+  const IMG_DIR = (window.THIRD_SPACES_IMAGE_DIR || 'images').replace(/\/+$/, '');
   // where photos are served from: the local /images folder by default, or any absolute URL (GitHub/jsDelivr, CDN, bucket…)
-  const IMG_BASE   = (window.THIRD_SPACES_IMAGE_BASE || IMG_DIR).trim().replace(/\/+$/, '');
+  const IMG_BASE = (window.THIRD_SPACES_IMAGE_BASE || IMG_DIR).trim().replace(/\/+$/, '');
   const TRAIT_MODE = window.THIRD_SPACES_TRAIT_MATCH === 'all' ? 'all' : 'any';
-  const HT = Object.assign({ enabled: true, mode: 'overlay', dotsAcross: 120, angle: 45, contrast: 1.25,
-                             brightness: 0.03, gamma: 0.8, overlayOpacity: 0.8, ink: '#141414', paper: '#f4f2ee' }, window.THIRD_SPACES_HALFTONE || {});
+  const HT = Object.assign({
+    enabled: true, mode: 'overlay', dotsAcross: 120, angle: 45, contrast: 1.25,
+    brightness: 0.03, gamma: 0.8, overlayOpacity: 0.8, ink: '#141414', paper: '#f4f2ee'
+  }, window.THIRD_SPACES_HALFTONE || {});
   const FILTERS = Object.assign({ traits: [], categories: [], boroughs: [] }, window.THIRD_SPACES_FILTERS || {});
 
   // output sizes (px) for processed images — match the aspect ratios in styles.css
-  const CARD_SIZE  = { w: 440, h: 490 };    // 349 : 389
+  const CARD_SIZE = { w: 440, h: 490 };    // 349 : 389
   const MODAL_SIZE = { w: 700, h: 960 };    // 525 : 720
 
   /* ------------------------------------------------------------ text helpers */
@@ -153,15 +157,17 @@
     if (!imgs.length) imgs = autoImages(p.num);
     p.images = imgs;
     p.traitKeys = new Set(splitList(p.tags).map(traitKey));
-    p.catKeys   = new Set(splitList(p.category).map(catKey));
+    p.catKeys = new Set(splitList(p.category).map(catKey));
     return p;
   }
 
   /* ------------------------------------------------------------ filters */
   const mkOpt = (o, keyFn) => {
     const opt = typeof o === 'string' ? { value: o, label: o } : o;
-    return { value: opt.value, label: opt.label || opt.value,
-             keys: new Set([opt.value, opt.label, ...(opt.aliases || [])].filter(Boolean).map(keyFn)) };
+    return {
+      value: opt.value, label: opt.label || opt.value,
+      keys: new Set([opt.value, opt.label, ...(opt.aliases || [])].filter(Boolean).map(keyFn))
+    };
   };
   let traitOpts = [], catOpts = [], boroughOpts = [];
   const active = { trait: new Set(), category: new Set(), borough: new Set() };
@@ -169,7 +175,7 @@
 
   function buildOptions() {
     traitOpts = FILTERS.traits.map(o => mkOpt(o, traitKey));
-    catOpts   = FILTERS.categories.map(o => mkOpt(o, catKey));
+    catOpts = FILTERS.categories.map(o => mkOpt(o, catKey));
     boroughOpts = FILTERS.boroughs.map(b => ({ value: b, label: b }));
     // anything in the sheet that isn't in config still gets a button, so new categories "just appear"
     places.forEach(p => {
@@ -264,7 +270,7 @@
       const cmyk = ([r, g, b]) => { const k = Math.min(1 - r, 1 - g, 1 - b); return [1 - r - k * .85, 1 - g - k * .85, 1 - b - k * .85, k]; };
       layer(15, '#00b4e6', rgb => cmyk(rgb)[0], 'multiply');
       layer(75, '#ee2a8e', rgb => cmyk(rgb)[1], 'multiply');
-      layer(0,  '#ffe81a', rgb => cmyk(rgb)[2], 'multiply');
+      layer(0, '#ffe81a', rgb => cmyk(rgb)[2], 'multiply');
       layer(45, '#141414', rgb => cmyk(rgb)[3] * 1.1, 'multiply');
     } else {
       layer(HT.angle, HT.ink, ([r, g, b]) => 1 - (0.299 * r + 0.587 * g + 0.114 * b), 'source-over');
@@ -290,7 +296,7 @@
         if (i >= cands.length) return resolve(null);
         const url = cands[i++];
         let remote = false;
-        try { remote = new URL(url, location.href).origin !== location.origin && !/^data:/i.test(url); } catch (e) {}
+        try { remote = new URL(url, location.href).origin !== location.origin && !/^data:/i.test(url); } catch (e) { }
         const im = new Image(); im.decoding = 'async';
         if (remote) im.crossOrigin = 'anonymous';
         im.onload = () => resolve({ img: im, url, cors: true });
@@ -325,8 +331,8 @@
   const grid = $('#placesGrid');
   const io = 'IntersectionObserver' in window
     ? new IntersectionObserver(entries => entries.forEach(en => {
-        if (en.isIntersecting) { io.unobserve(en.target); hydrateCard(en.target); }
-      }), { rootMargin: '400px 0px' })
+      if (en.isIntersecting) { io.unobserve(en.target); hydrateCard(en.target); }
+    }), { rootMargin: '400px 0px' })
     : null;
 
   function hydrateCard(card) {
@@ -442,7 +448,7 @@
   const SB_KEY = 'thirdSpacesSidebarCollapsed';
   const desktop = window.matchMedia('(min-width: 821px)');
   let collapsed = false;
-  try { collapsed = localStorage.getItem(SB_KEY) === '1'; } catch (e) {}
+  try { collapsed = localStorage.getItem(SB_KEY) === '1'; } catch (e) { }
   function applySidebar() {
     document.body.classList.toggle('sidebar-collapsed', collapsed);
     $('#sidebar').inert = collapsed && desktop.matches;      // keep hidden controls out of the tab order
@@ -450,10 +456,10 @@
   }
   function setSidebar(c, persist = true) {
     collapsed = c; applySidebar();
-    if (persist) try { localStorage.setItem(SB_KEY, c ? '1' : '0'); } catch (e) {}
+    if (persist) try { localStorage.setItem(SB_KEY, c ? '1' : '0'); } catch (e) { }
   }
-  $('#sidebarCollapse').addEventListener('click', () => { setSidebar(true);  $('#sidebarExpand').focus({ preventScroll: true }); });
-  $('#sidebarExpand').addEventListener('click',   () => { setSidebar(false); $('#sidebarCollapse').focus({ preventScroll: true }); });
+  $('#sidebarCollapse').addEventListener('click', () => { setSidebar(true); $('#sidebarExpand').focus({ preventScroll: true }); });
+  $('#sidebarExpand').addEventListener('click', () => { setSidebar(false); $('#sidebarCollapse').focus({ preventScroll: true }); });
   (desktop.addEventListener ? desktop.addEventListener('change', applySidebar) : desktop.addListener(applySidebar));
 
   /* ------------------------------------------------------------ fit titles: every .fit-line stays on one line */
@@ -475,8 +481,86 @@
   window.addEventListener('resize', fitTitles);
   if (document.fonts) { document.fonts.ready.then(fitTitles); document.fonts.addEventListener && document.fonts.addEventListener('loadingdone', fitTitles); }
 
-  /* ------------------------------------------------------------ views: index / submit / about */
-  const VIEWS = ['index', 'submit', 'about'];
+  /* ------------------------------------------------------------ words page (survey answers on post-it cards) */
+  const WORDS_CSV = (window.THIRD_SPACES_WORDS_CSV_URL || '').trim();
+  let words = window.THIRD_SPACES_WORDS || { questions: [], answers: [] }, wq = 0, wAll = false;
+  const wMine = [];                                          // cards written on this screen
+  const wPos = new Map(); let wZ = 10;                      // dragged positions: this visit only (the layout reshuffles on every reload)
+  const wRand = new Map();                                    // per-card random look, made fresh on every page load
+  const saveWPos = () => { };
+  const wCols = Math.random() < 0.5 ? 3 : 3;                   // "every answer" view: 2 or 3 cards per row, picked fresh on every load
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const look = k => { if (!wRand.has(k)) wRand.set(k, { s: Math.random(), r: rand(-5, 5), my: Math.round(rand(0, 70)), mx: Math.round(rand(-14, 14)) }); return wRand.get(k); };
+  const noteKey = a => a.q + '|' + a.name + '|' + a.text.slice(0, 40);
+  async function loadWords() {                               // optional live sheet: same columns as the survey export
+    if (!WORDS_CSV) return;
+    try {
+      const res = await fetch(WORDS_CSV, { cache: 'no-store' });
+      const text = await res.text();
+      if (!res.ok || /^\s*<(!doctype|html)/i.test(text)) throw new Error('not CSV');
+      const rows = parseCSV(text), cols = Object.keys(rows[0] || {});
+      const i0 = cols.findIndex(k => norm(k) === 'last name') + 1, fn = cols.find(k => norm(k) === 'first name'), answers = [];
+      rows.forEach(r => cols.slice(i0, i0 + 8).forEach((k, q) => {
+        const text = String(r[k] || '').replace(/\s+/g, ' ').trim();
+        if (text) answers.push({ q, name: String(r[fn] || '').trim() || 'Anonymous', text });
+      }));
+      if (answers.length) words = { questions: words.questions, answers };
+    } catch (e) { console.warn('Words sheet unavailable:', e); }
+  }
+  function renderWords() {
+    const qs = words.questions, q = qs[wq] || { short: '', prompt: '' };
+    $('#wordsList').innerHTML = qs.map((x, i) => `<button type="button" class="wq" role="radio" aria-checked="${!wAll && i === wq}" data-q="${i}"><b>${i + 1}</b><span>${esc(x.short)}</span></button>`).join('');
+    $('#wordsPrompt').textContent = q.prompt;
+    $('#wordsAll').textContent = wAll ? 'Show only this question' : 'Show every answer';
+    $('#wordsMain .words-wrap').classList.toggle('all-mode', wAll);   // "every answer" view: no question card / text box
+    $('#wordsPile').classList.toggle('show-all', wAll); $('#wordsPile').style.setProperty('--cols', wCols);
+    const list = [...wMine, ...words.answers.filter(a => wAll || a.q === wq).sort((a, b) => look(noteKey(a)).s - look(noteKey(b)).s)]
+      .filter(a => wAll || a.q === wq);
+    $('#wordsPile').innerHTML = list.map((a, i) => {
+      const k = noteKey(a), p = wPos.get(k) || {}, L = look(k), r = L.r.toFixed(2);
+      return `<article class="note pnote${a.mine ? ' mine' : ''}" data-k="${esc(k)}" style="--r:${r}deg;--my:${L.my}px;--mx:${L.mx}px;--x:${p.x || 0}px;--y:${p.y || 0}px${p.z ? ';z-index:' + p.z : ''}">${wAll ? `<span class="label">${esc((qs[a.q] || {}).short || '')}</span>` : ''}<p>${esc(a.text)}</p><b>${esc(a.name)}</b></article>`;
+    }).join('') || '<p class="empty-state">No answers yet. Be the first to write one.</p>';
+  }
+  // drag any card, on any question; it stays where you drop it
+  let drag = null;
+  const pile = $('#wordsPile');
+  pile.addEventListener('pointerdown', e => {
+    const el = e.target.closest('.pnote'); if (!el || e.button > 0) return;
+    const p = wPos.get(el.dataset.k) || { x: 0, y: 0 };
+    drag = { el, k: el.dataset.k, sx: e.clientX, sy: e.clientY, ox: p.x || 0, oy: p.y || 0, rect: el.getBoundingClientRect(), cur: { x: p.x || 0, y: p.y || 0 } };
+    el.setPointerCapture(e.pointerId); el.classList.add('drag'); el.style.zIndex = ++wZ; e.preventDefault();
+  });
+  pile.addEventListener('pointermove', e => {
+    if (!drag) return;
+    const b = $('#wordsMain').getBoundingClientRect(), r = drag.rect;      // keep the card inside the board
+    const dx = Math.min(Math.max(e.clientX - drag.sx, b.left - r.left), b.right - r.right);
+    const dy = Math.min(Math.max(e.clientY - drag.sy, b.top - r.top), b.bottom - r.bottom);
+    drag.cur = { x: drag.ox + dx, y: drag.oy + dy };
+    drag.el.style.setProperty('--x', drag.cur.x + 'px'); drag.el.style.setProperty('--y', drag.cur.y + 'px');
+  });
+  const endDrag = () => { if (!drag) return; drag.el.classList.remove('drag'); wPos.set(drag.k, { ...drag.cur, z: wZ }); saveWPos(); drag = null; };
+  pile.addEventListener('pointerup', endDrag); pile.addEventListener('pointercancel', endDrag);
+  $('#wordsReset').addEventListener('click', () => { wPos.clear(); wRand.clear(); renderWords(); });   // also reshuffles
+  $('#wordsList').addEventListener('click', e => { const b = e.target.closest('[data-q]'); if (b) { wq = +b.dataset.q; wAll = false; renderWords(); } });
+  $('#wordsAll').addEventListener('click', () => { wAll = !wAll; renderWords(); });
+  $('#wordsForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const f = e.target, d = new FormData(f), st = $('#wordsStatus');
+    const text = String(d.get('text') || '').trim(); if (d.get('website') || !text) return;
+    const name = String(d.get('name') || '').trim().slice(0, 40) || 'Anonymous';
+    wMine.unshift({ q: wq, name, text, mine: true }); wAll = false; renderWords(); f.reset();   // appears on the board straight away
+    const gf = parseGoogleForm(window.THIRD_SPACES_WORDS_FORM);
+    if (!gf) { st.textContent = 'Pinned on your screen. (Sharing with everyone isn’t switched on yet.)'; return; }
+    try {
+      const body = { question: words.questions[wq].short, answer: text, name }, p = new URLSearchParams();
+      Object.entries(gf.fields).forEach(([k, entry]) => { if (body[k] != null) p.append(entry, body[k]); });
+      await fetch(gf.action, { method: 'POST', mode: 'no-cors', body: p });
+      st.textContent = 'Pinned. Thank you! It will appear for everyone once approved.';
+    } catch (err) { st.textContent = 'Pinned on your screen, but it could not be sent. Please try again.'; }
+  });
+
+  /* ------------------------------------------------------------ views: index / words / submit / about */
+  const VIEWS = ['index', 'words', 'submit', 'about'];
   function setView(v) {
     if (!VIEWS.includes(v)) v = 'index';
     document.body.dataset.view = v;
@@ -492,8 +576,8 @@
   /* ------------------------------------------------------------ submit form */
   // THIRD_SPACES_GOOGLE_FORM = a Google Form "pre-filled link" whose answers are the words
   // name / address / category / traits / description / images / email  → maps each form question to a site field
-  function parseGoogleForm() {
-    const raw = (window.THIRD_SPACES_GOOGLE_FORM || '').trim();
+  function parseGoogleForm(raw = window.THIRD_SPACES_GOOGLE_FORM) {
+    raw = String(raw || '').trim();
     if (!raw) return null;
     try {
       const u = new URL(raw), fields = {};
@@ -561,6 +645,20 @@
       } catch (e) { /* not there */ }
     }
     if (!rows) rows = (window.THIRD_SPACES_FALLBACK || []).map(cleanPlace).filter(p => p.name);   // backup 2: data.js
+    for (const u of EXTRA_URLS) {                    // approved submissions etc. — a failure here never hides the main index
+      try {
+        const res = await fetch(u, { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const text = await res.text();
+        if (/^\s*<(!doctype|html)/i.test(text)) throw new Error('returned a web page, not CSV');
+        const seen = new Set(rows.map(p => norm(p.name + '|' + p.address)));
+        parseRows(text).forEach(p => { const k = norm(p.name + '|' + p.address); if (!seen.has(k)) { seen.add(k); rows.push(p); } });
+      } catch (err) {
+        console.warn('Extra sheet unavailable:', err);
+        msg += (msg ? ' ' : '') + 'Could not read the approved-submissions tab (' + (err.message || err) + ').';
+      }
+    }
+    rows.forEach((p, i) => { p.uid = 'p' + i; });    // unique ids across all merged lists
     if (!rows.length && msg) msg += ' The backup copies (third-space-index.csv and data.js) are also missing from the site.';
     $('#statusMessage').textContent = msg;
 
@@ -572,6 +670,7 @@
 
   /* ------------------------------------------------------------ go */
   applySidebar();
+  renderWords(); loadWords().then(renderWords);
   route();
   loadData();
   if (REFRESH_MS > 0) setInterval(loadData, REFRESH_MS);

@@ -3,8 +3,11 @@
    ===================================================================== */
 
 /* 1) LIVE GOOGLE SHEET  — published CSV link (File → Share → Publish to web → CSV) */
-window.THIRD_SPACES_CSV_URL = ""third-space-index.csv"";
-window.THIRD_SPACES_EXTRA_CSV_URLS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSYQas2pZX83pMCFlJyn7IjCTZCgHl5KtyEDvID1ljJo1TwwEmbmiKBVwEh0kySYTuy8rwiu1u_02ue/pub?gid=186503157&single=true&output=csv";
+window.THIRD_SPACES_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSYQas2pZX83pMCFlJyn7IjCTZCgHl5KtyEDvID1ljJo1TwwEmbmiKBVwEh0kySYTuy8rwiu1u_02ue/pub?output=csv";
+/* 1b) OPTIONAL extra published CSV links whose rows are ADDED to the index — e.g. the "Approved" tab of reviewed Google Form
+       submissions (see README). Leave [] if unused. */
+window.THIRD_SPACES_EXTRA_CSV_URLS = [];
+
 window.THIRD_SPACES_REFRESH_MS = 300000;   // re-check the sheet every 5 min (0 = never)
 
 /* 2) IMAGES — folder next to index.html. The sheet's [image] column should hold
@@ -40,8 +43,19 @@ window.THIRD_SPACES_SUBMIT_ENDPOINT = "";
 /* 4b) EASIEST — GOOGLE FORM (no script deployment / no admin permission needed).
        Paste a Google Form "pre-filled link" here. See README → "Submit form without Apps Script".
        Takes priority over the endpoint above. */
-window.THIRD_SPACES_GOOGLE_FORM = "https://docs.google.com/forms/d/e/1FAIpQLSe3S1XskfUWF4xpAEHaEu8jsHyYaVTssjZvh9ORVdohXOPfwg/viewform?usp=pp_url&entry.588886037=name&entry.1255091026=address&entry.1367515567=category&entry.1341884999=traits&entry.266073878=description&entry.448242897=images&entry.727839015=email";
+window.THIRD_SPACES_GOOGLE_FORM = "";
 window.THIRD_SPACES_SUBMIT_EMAIL = "thirdspaces@example.com";
+
+/* 0) THEME — "color" (pink / blue / orange / green sidebars, dark-brown text) or "mono" (grey sidebar, black text) */
+window.THIRD_SPACES_THEME = "color";
+
+/* 4c) WORDS PAGE (survey answers on post-it cards)
+       THIRD_SPACES_WORDS_CSV_URL : optional published-CSV link with the survey export's columns (first name, last name, then the 8 answers).
+                                    "" = use the bundled words.js.
+       THIRD_SPACES_WORDS_FORM    : optional Google Form pre-filled link so cards written on the site are saved. Fill the form's
+                                    three questions with the words  question  /  answer  /  name  before copying the link. */
+window.THIRD_SPACES_WORDS_CSV_URL = "";
+window.THIRD_SPACES_WORDS_FORM = "";
 
 /* 5) FILTERS
       value   = the word(s) used in the sheet      label = text on the button

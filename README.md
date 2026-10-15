@@ -66,6 +66,23 @@ Use this if Apps Script won't let you deploy (common with school/work Google acc
 *Make.com / Zapier* can add rows to Sheet1 automatically using your own Google login — no deployment needed, but the free plans are limited.
 *Apps Script:* if it says you're not authorised, you're likely on a Workspace (school/work) account whose admin blocks public web apps — create the sheet under a personal Gmail instead. On the "Google hasn't verified this app" screen choose **Advanced → Go to (project) (unsafe)**.
 
+## Approving form submissions — the "Approved" tab (recommended)
+Keep **Sheet1** as the index and publish it as CSV (`THIRD_SPACES_CSV_URL`). Add a second tab, `Approved`, that shows only the submissions you've ticked, publish it as its own CSV, and list it in `THIRD_SPACES_EXTRA_CSV_URLS = ["https://…/pub?gid=…&single=true&output=csv"];`. The site merges the two (duplicates by name + address are ignored), and if the Approved tab ever breaks, the main index still loads.
+In `Form Responses 1` add `approved` (tick boxes) in column I and `photo file` in column J. In `Approved` type the seven index headers in row 1 and paste into `A2`:
+```
+=IFERROR(ARRAYFORMULA(FILTER({IF('Form Responses 1'!J2:J<>"",'Form Responses 1'!J2:J,'Form Responses 1'!G2:G), 99+ROW('Form Responses 1'!B2:B), 'Form Responses 1'!B2:B, 'Form Responses 1'!C2:C, LOWER('Form Responses 1'!E2:E), LOWER('Form Responses 1'!D2:D), 'Form Responses 1'!F2:F}, 'Form Responses 1'!I2:I=TRUE)),"")
+```
+Leave every cell below and to the right of `A2` empty, or Sheets shows `#REF!`.
+
+## Theme: colour or monochrome
+In `config.js` set `window.THIRD_SPACES_THEME = "mono";` for the grey-sidebar / black-text version, or `"color"` for the pink · blue · orange · green version. Palette values live at the top of `styles.css` (`:root` for colour, `:root[data-theme="mono"]` for monochrome).
+
+## Words page (survey answers on post-it cards)
+`#words` — a fourth tab. The sidebar lists the 8 survey questions; picking one shows its answers as tilted cards on a white board and turns the writing card into that question. **Show every answer** displays all 40. Cards can be dragged anywhere on the board, on every question; positions are remembered in the visitor's browser, and **Reset card layout** puts them back. **← Back to index** returns to the grid.
+- **Data:** `words.js` holds the answers (first names only). To read them live instead, publish the survey tab as CSV and set `THIRD_SPACES_WORDS_CSV_URL` — same columns as the survey export: first name, last name, then the 8 answers in order. Save/export it as **CSV UTF-8**, or dashes and curly quotes turn into stray characters.
+- **Writing a card:** "Pin it →" puts the card on the board immediately for that visitor. To save it for everyone, make a Google Form with three short-answer questions, open ⋮ → **Get pre-filled link**, type `question`, `answer` and `name` into them, and paste the link into `THIRD_SPACES_WORDS_FORM`. Cards then arrive in the form's response sheet for you to review; approved ones are added to the survey sheet.
+- **Privacy:** only first names are shown. Check each person agreed to this.
+
 ## Publishing on GitHub (GitHub Pages, free)
 The site is plain HTML/CSS/JS, so GitHub Pages hosts it as-is — no build step.
 
