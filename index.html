@@ -131,6 +131,12 @@
   </div>
 
   <!-- ================= GRID ================= -->
+  <div class="density" id="density">
+    <label for="densityRange">Places per row</label>
+    <input id="densityRange" type="range" min="2" max="8" step="1" value="4" aria-describedby="densityOut">
+    <output id="densityOut" for="densityRange">4</output>
+  </div>
+
   <main class="main" id="main">
     <div id="statusMessage" class="status-message" role="status"></div>
     <div id="placesGrid" class="places-grid" aria-live="polite"></div>
@@ -185,6 +191,9 @@
         </div>
         <div class="detail-block"><span class="label">ADDRESS</span>
           <p><a id="mapLink" target="_blank" rel="noreferrer"></a></p>
+        </div>
+        <div class="detail-block" id="mWebsiteBlock" hidden><span class="label">WEBSITE</span>
+          <p><a id="mWebsite" target="_blank" rel="noreferrer"></a></p>
         </div>
       </div>
     </article>

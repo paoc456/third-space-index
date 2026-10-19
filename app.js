@@ -26,7 +26,7 @@
   const FILTERS = Object.assign({ traits: [], categories: [], boroughs: [] }, window.THIRD_SPACES_FILTERS || {});
 
   // output sizes (px) for processed images — match the aspect ratios in styles.css
-  const CARD_SIZE = { w: 440, h: 490 };    // 349 : 389
+  const CARD_SIZE = { w: 520, h: 650 };    // 4 : 5 — keep in step with .card-image aspect-ratio in styles.css
   const MODAL_SIZE = { w: 700, h: 960 };    // 525 : 720
 
   /* ------------------------------------------------------------ text helpers */
@@ -151,6 +151,7 @@
       category: get('category', 'categories'),
       description: get('description', 'decription', 'about the space', 'about'),
       image: get('[image]', 'image', 'images', 'image url', 'photo'),
+      website: get('website', 'url', 'link', 'site', 'web'),
       borough: get('borough') || guessBorough(address)
     };
     let imgs = splitImages(p.image).map(candidatesFor);
@@ -381,6 +382,12 @@
   let current = null, slide = 0, slideToken = 0, lastFocus = null, closeTimer = null;
   const FADE_MS = 320;
 
+  function modalSize() {                                   // render the halftone at the shape the image box actually has
+    const r = gallery.getBoundingClientRect();
+    if (!r.width || !r.height) return MODAL_SIZE;
+    const q = v => Math.round(v / 40) * 40, w = Math.min(900, Math.max(360, q(r.width * 1.5)));
+    return { w, h: Math.min(1400, Math.max(240, q(w * r.height / r.width))) };
+  }
   function showSlide(i) {
     const imgs = current.images;
     gallery.dataset.count = imgs.length;
@@ -388,14 +395,19 @@
     slide = (i + imgs.length) % imgs.length;
     $$('#galleryDots button').forEach((d, k) => d.classList.toggle('active', k === slide));
     const token = ++slideToken;
-    renderImage(imgs[slide], MODAL_SIZE).then(url => {
+    renderImage(imgs[slide], modalSize()).then(url => {
       if (token !== slideToken) return;
       if (!url) { mImg.hidden = true; mPh.hidden = false; return; }
       mImg.src = url; mImg.alt = current.name; mImg.hidden = false; mPh.hidden = true;
     });
-    if (imgs.length > 1) renderImage(imgs[(slide + 1) % imgs.length], MODAL_SIZE);   // warm the next one
+    if (imgs.length > 1) renderImage(imgs[(slide + 1) % imgs.length], modalSize());   // warm the next one
   }
 
+  function cleanUrl(s) {                                    // "usagi.nyc" → "https://usagi.nyc"; anything that isn't a web address → ""
+    s = String(s || '').trim(); if (!s) return '';
+    if (!/^https?:\/\//i.test(s)) s = 'https://' + s;
+    try { return new URL(s).href; } catch (e) { return ''; }
+  }
   function openPlace(uid, trigger) {
     const p = places.find(x => x.uid === uid); if (!p) return;
     current = p; lastFocus = trigger || null;
@@ -403,6 +415,9 @@
     $('#modalCategory').textContent = titleCase(splitList(p.category).join(', ')) || '—';
     $('#modalTags').textContent = titleCase(splitList(p.tags).join(', ')) || '—';
     $('#modalDescription').textContent = p.description || 'Description coming soon.';
+    const site = cleanUrl(p.website), wb = $('#mWebsiteBlock'), wl = $('#mWebsite');      // WEBSITE row: only shown when the sheet has one
+    wb.hidden = !site;
+    if (site) { wl.href = site; wl.textContent = site.replace(/^https?:\/\/(www\.)?/i, '').replace(/\/$/, ''); }
     const a = $('#mapLink');
     a.textContent = p.address || 'Address not listed';
     a.href = p.address ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent([p.name, p.address].join(', ')) : '#';
@@ -662,13 +677,22 @@
     if (!rows.length && msg) msg += ' The backup copies (third-space-index.csv and data.js) are also missing from the site.';
     $('#statusMessage').textContent = msg;
 
-    const sig = JSON.stringify(rows.map(p => [p.id, p.name, p.address, p.tags, p.category, p.description, p.image, p.borough, p.images]));
+    const sig = JSON.stringify(rows.map(p => [p.id, p.name, p.address, p.tags, p.category, p.description, p.image, p.borough, p.images, p.website]));
     if (sig === lastSig) return;               // nothing changed → don't redraw / re-process images
     lastSig = sig; places = rows;
     buildOptions(); renderFilterButtons(); renderSubmitOptions(); render();
   }
 
   /* ------------------------------------------------------------ go */
+  // "places per row" slider (top right of the index)
+  const COLS_KEY = 'thirdSpacesCols';
+  function setCols(n, save) {
+    document.documentElement.style.setProperty('--cols', n);
+    $('#densityRange').value = n; $('#densityOut').textContent = n;
+    if (save) try { localStorage.setItem(COLS_KEY, n); } catch (e) {}
+  }
+  $('#densityRange').addEventListener('input', e => setCols(+e.target.value, true));
+  { let n = 4; try { const v = +localStorage.getItem(COLS_KEY); if (v >= 2 && v <= 8) n = v; } catch (e) {} setCols(n, false); }
   applySidebar();
   renderWords(); loadWords().then(renderWords);
   route();

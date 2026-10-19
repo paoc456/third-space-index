@@ -143,3 +143,7 @@ If no endpoint is set, the form opens the visitor's email app, addressed to `THI
 
 ## Limits
 The site only *reads* the sheet; it doesn't write back or have an admin login.
+
+## Index grid, density slider and websites
+- **Slider (top right of the index):** "Places per row", 2–8, default 4, remembered per visitor. Default, gutter and image shape are the first lines of the `INDEX GRID` block at the bottom of `styles.css`; the slider's range is `min`/`max` on `#densityRange` in `index.html`.
+- **Website column:** the sheet's 8th column is now `website` (header added in `third-space-index.csv`). Put `usagi.nyc` or a full `https://…` address in it and a WEBSITE row appears under ADDRESS in that place's popup; empty cells show nothing.

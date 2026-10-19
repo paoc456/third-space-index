@@ -1443,26 +1443,9 @@ body[data-view="words"] .words-main {
    ===================================================================== */
 
 /* ---------------------------------------------------------------------
-   1. GRID IMAGES â€” monochrome halftone at rest, colour halftone on hover
-   (the dots are already baked into every image; this only toggles the colour)
+   1. GRID IMAGES — back to original colour (the halftone dots stay)
    --------------------------------------------------------------------- */
-.card-image img {
-  filter: grayscale(1);
-  transition: opacity .5s ease, filter .4s ease;
-}
-
-.place-card:hover .card-image img,
-.place-card:focus-visible .card-image img {
-  filter: grayscale(0);
-}
-
-@media (hover: none) {
-  .card-image img {
-    filter: none;
-  }
-}
-
-/* touch screens have no hover â†’ keep colour */
+.card-image img { transition: opacity .5s ease; }
 
 /* ---------------------------------------------------------------------
    2. WORDS PAGE â€” cards ~17% wider  (was 250px â†’ now 294px; change both numbers together)
@@ -1615,4 +1598,40 @@ body {
   line-height: 1.3;
   padding: .6em 1em .55em;
   margin-bottom: 14px;
+}
+
+/* =====================================================================
+   INDEX GRID — 4 per row by default, tighter gutters, taller images,
+   and a "places per row" slider (top right). Edit the numbers below.
+   ===================================================================== */
+:root { --cols: 4; }   /* default images per row — the slider overrides this */
+
+@media (min-width: 821px) {
+  .main { padding: calc(var(--u)*150) calc(var(--u)*70) calc(var(--u)*200); }                      /* page margins */
+  body.sidebar-collapsed .main { padding: calc(var(--u)*230) calc(var(--u)*70) calc(var(--u)*200); }
+  .places-grid,
+  body.sidebar-collapsed .places-grid {
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr)) !important;
+    column-gap: calc(var(--u)*34);        /* gutter between images (was 164) */
+    row-gap: calc(var(--u)*56);
+  }
+  .card-image { aspect-ratio: 4 / 5; }      /* image shape: taller than before (was 349/389) */
+  .card-name { margin-top: calc(var(--u)*18); }
+}
+
+/* the slider */
+.density { position: fixed; top: calc(var(--u)*33); right: 28px; z-index: 6; display: none; align-items: center; gap: 12px;
+  font: 500 11px var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--ink); }
+@media (min-width: 821px) { body[data-view="index"] .density { display: flex; } }
+.density input { width: 140px; accent-color: var(--ink); cursor: pointer; }
+.density output { min-width: 1.4em; text-align: right; }
+
+
+/* =====================================================================
+   POPUP — the image stretches to match the height of the text beside it
+   (longer description = taller image). Desktop only; phones keep their layout.
+   ===================================================================== */
+@media (min-width: 821px) {
+  .modal-image-wrap { aspect-ratio: auto; align-self: stretch; min-height: clamp(320px, 45vh, 520px); }
+  .modal-copy { align-self: end; }
 }
