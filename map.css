@@ -1,0 +1,222 @@
+/* =====================================================================
+   THIRD SPACES — MAP VIEW  ·  map.css
+   Grid / Map toggle + the interactive map, in the site's ivory and green.
+   Colours come from the same variables as the rest of the site
+   (--paper = ivory, --ink = green, --line-dark = dark green).
+   The map TILES are recoloured in map.js (see the COLOURS section there).
+   ===================================================================== */
+
+/* ---------- Grid / Map toggle (sits left of the "places per row" slider) ---------- */
+.density .view-toggle {
+  display: flex;
+}
+
+.density .density-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.view-toggle button {
+  min-height: max(32px, calc(var(--u)*42));
+  padding: .1em 1.1em 0;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 max(12px, calc(var(--u)*22))/1 var(--serif);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.view-toggle button+button {
+  margin-left: -1px;
+}
+
+/* shared border between the two */
+.view-toggle button:hover {
+  background: rgba(11, 149, 71, .1);
+}
+
+.view-toggle button[aria-pressed="true"] {
+  background: var(--ink);
+  color: #fff;
+}
+
+.view-toggle button:focus-visible {
+  outline: 2px solid var(--line-dark);
+  outline-offset: 2px;
+}
+
+/* ---------- switching views ---------- */
+.map-view {
+  display: none;
+}
+
+body:is([data-view="index"], [data-view="submit"], [data-view="about"])[data-index-mode="map"] .main {
+  display: none;
+}
+
+body:is([data-view="index"], [data-view="submit"], [data-view="about"])[data-index-mode="map"] .map-view {
+  display: block;
+}
+
+body[data-index-mode="map"] .density-controls {
+  display: none;
+}
+
+/* slider only makes sense for the grid */
+
+/* ---------- the map fills everything to the right of the sidebar ---------- */
+.map-view {
+  position: fixed;
+  inset: 0 0 0 var(--side);
+  z-index: 1;
+  isolation: isolate;
+  /* keeps Leaflet's internal z-indexes from covering the sidebar / popup */
+  background: var(--paper);
+  transition: left .35s ease;
+}
+
+body.sidebar-collapsed .map-view {
+  left: 0;
+}
+
+.map-canvas {
+  position: absolute;
+  inset: 0;
+  background: var(--paper);
+  font-family: var(--sans);
+}
+
+.map-note {
+  position: absolute;
+  left: 20px;
+  bottom: 18px;
+  z-index: 500;
+  margin: 0;
+  padding: .55em .9em .5em;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  font: 500 11px/1.3 var(--sans);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.map-note:empty {
+  display: none;
+}
+
+/* ---------- pins ---------- */
+.ts-pin {
+  background: none;
+  border: 0;
+}
+
+.ts-pin span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--ink);
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--line-dark);
+  transition: transform .15s ease, background .15s ease;
+}
+
+.ts-pin:hover span,
+.ts-pin:focus span,
+.ts-pin.is-hot span {
+  transform: scale(1.45);
+  background: var(--line-dark);
+}
+
+.leaflet-marker-icon:focus {
+  outline: none;
+}
+
+/* name label on hover */
+.leaflet-tooltip.ts-tip {
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  box-shadow: none;
+  padding: .5em .8em .4em;
+  font: 400 12px/1.2 var(--serif);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.leaflet-tooltip.ts-tip::before {
+  display: none;
+}
+
+/* ---------- Leaflet controls, restyled ---------- */
+.map-canvas .leaflet-bar {
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.map-canvas .leaflet-bar a {
+  background: var(--paper);
+  color: var(--ink);
+  border-bottom: 1px solid var(--ink);
+  width: 34px;
+  height: 34px;
+  line-height: 33px;
+  font-family: var(--serif);
+}
+
+.map-canvas .leaflet-bar a:last-child {
+  border-bottom: 0;
+}
+
+.map-canvas .leaflet-bar a:hover {
+  background: var(--ink);
+  color: #fff;
+}
+
+.map-canvas .leaflet-bar a.leaflet-disabled {
+  background: var(--paper);
+  color: rgba(11, 149, 71, 0.574);
+}
+
+.map-canvas .leaflet-control-attribution {
+  background: rgba(255, 252, 242, .88);
+  color: var(--line-dark);
+  font: 400 10px/1.4 var(--sans);
+  padding: 2px 6px;
+}
+
+.map-canvas .leaflet-control-attribution a {
+  color: var(--ink);
+}
+
+.map-canvas .leaflet-container {
+  background: var(--paper);
+  font-family: var(--sans);
+}
+
+/* the recoloured map (filter is defined in map.js) */
+.map-canvas .leaflet-tile-pane {
+  filter: url(#tsDuotone);
+}
+
+@media (max-width: 820px) {
+  .density {
+    display: none;
+  }
+
+  /* the toggle lives in that bar, so phones keep the grid for now */
+}
+
+/* phones have no Grid | Map switch, so they always get the grid */
+@media (max-width: 820px) {
+  .map-view { display: none !important; }
+  body[data-view="index"][data-index-mode="map"] .main { display: block !important; }
+}

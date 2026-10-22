@@ -152,7 +152,9 @@
       description: get('description', 'decription', 'about the space', 'about'),
       image: get('[image]', 'image', 'images', 'image url', 'photo'),
       website: get('website', 'url', 'link', 'site', 'web'),
-      borough: get('borough') || guessBorough(address)
+      borough: get('borough') || guessBorough(address),
+      lat: parseFloat(get('lat', 'latitude')),            // optional — used by the map view
+      lng: parseFloat(get('lng', 'lon', 'long', 'longitude'))
     };
     let imgs = splitImages(p.image).map(candidatesFor);
     if (!imgs.length) imgs = autoImages(p.num);
@@ -356,6 +358,7 @@
        </article>`).join('');
     $$('.place-card', grid).forEach(c => io ? io.observe(c) : hydrateCard(c));
     $('#emptyState').hidden = list.length !== 0;
+    document.dispatchEvent(new CustomEvent('ts:render', { detail: list }));   // map.js listens for this
   }
 
   function onFiltersChanged() {
@@ -677,22 +680,24 @@
     if (!rows.length && msg) msg += ' The backup copies (third-space-index.csv and data.js) are also missing from the site.';
     $('#statusMessage').textContent = msg;
 
-    const sig = JSON.stringify(rows.map(p => [p.id, p.name, p.address, p.tags, p.category, p.description, p.image, p.borough, p.images, p.website]));
+    const sig = JSON.stringify(rows.map(p => [p.id, p.name, p.address, p.tags, p.category, p.description, p.image, p.borough, p.images, p.website, p.lat, p.lng]));
     if (sig === lastSig) return;               // nothing changed → don't redraw / re-process images
     lastSig = sig; places = rows;
     buildOptions(); renderFilterButtons(); renderSubmitOptions(); render();
   }
 
   /* ------------------------------------------------------------ go */
-  // "places per row" slider (top right of the index)
-  const COLS_KEY = 'thirdSpacesCols';
+  // "View 3 · 4 · 6 · 8" — places per row (top right of the index)
+  const COLS_KEY = 'thirdSpacesCols', COL_CHOICES = [3, 4, 6, 8];
   function setCols(n, save) {
+    n = COL_CHOICES.reduce((x, y) => Math.abs(y - n) < Math.abs(x - n) ? y : x);      // an old saved value (e.g. 5) snaps to the nearest choice
     document.documentElement.style.setProperty('--cols', n);
-    $('#densityRange').value = n; $('#densityOut').textContent = n;
+    $$('#density [data-cols]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.cols === n)));
     if (save) try { localStorage.setItem(COLS_KEY, n); } catch (e) {}
   }
-  $('#densityRange').addEventListener('input', e => setCols(+e.target.value, true));
+  $('#density').addEventListener('click', e => { const b = e.target.closest('[data-cols]'); if (b) setCols(+b.dataset.cols, true); });
   { let n = 4; try { const v = +localStorage.getItem(COLS_KEY); if (v >= 2 && v <= 8) n = v; } catch (e) {} setCols(n, false); }
+  window.ThirdSpaces = { getFiltered, openPlace };   // used by map.js
   applySidebar();
   renderWords(); loadWords().then(renderWords);
   route();

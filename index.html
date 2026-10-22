@@ -13,6 +13,7 @@
     href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="map.css">
   <script src="config.js"></script>
   <script>document.documentElement.dataset.theme = window.THIRD_SPACES_THEME || "color";</script>
 </head>
@@ -132,9 +133,17 @@
 
   <!-- ================= GRID ================= -->
   <div class="density" id="density">
-    <label for="densityRange">Places per row</label>
-    <input id="densityRange" type="range" min="2" max="8" step="1" value="4" aria-describedby="densityOut">
-    <output id="densityOut" for="densityRange">4</output>
+    <div class="view-toggle" role="group" aria-label="Index view">
+      <button type="button" id="viewGrid" aria-pressed="true">Grid</button>
+      <button type="button" id="viewMap" aria-pressed="false">Map</button>
+    </div>
+    <div class="density-controls" role="group" aria-label="Places per row">
+      <span class="cols-label">View</span>
+      <button type="button" data-cols="3" aria-pressed="false">3</button>
+      <button type="button" data-cols="4" aria-pressed="true">4</button>
+      <button type="button" data-cols="6" aria-pressed="false">6</button>
+      <button type="button" data-cols="8" aria-pressed="false">8</button>
+    </div>
   </div>
 
   <main class="main" id="main">
@@ -142,6 +151,12 @@
     <div id="placesGrid" class="places-grid" aria-live="polite"></div>
     <div id="emptyState" class="empty-state" hidden>No places match those filters. Try clearing a filter.</div>
   </main>
+
+  <!-- ================= MAP VIEW ================= -->
+  <section class="map-view" id="mapView" aria-label="Map of third spaces">
+    <div class="map-canvas" id="map"></div>
+    <p class="map-note" id="mapNote" role="status"></p>
+  </section>
 
   <!-- ================= WORDS PAGE ================= -->
   <section class="words-main" id="wordsMain" aria-label="Words">
@@ -200,9 +215,11 @@
   </div>
 
   <script src="data.js"></script>
+  <script src="coords.js"></script>
   <script src="words.js"></script>
   <script src="images/manifest.js"></script>
   <script src="app.js"></script>
+  <script src="map.js"></script>
 </body>
 
 </html>
